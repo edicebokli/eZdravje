@@ -6,6 +6,8 @@ var username = "ois.seminar";
 var password = "ois4fri";
 
 
+
+
 /**
  * Prijava v sistem z privzetim uporabnikom za predmet OIS in pridobitev
  * enolične ID številke za dostop do funkcionalnosti
@@ -32,14 +34,14 @@ function getSessionId() {
  */
  
 function generirajPodatke(stPacienta) {
-    console.log("Test");
+  console.log("Test");
   var ehrId = "";
   var Ime = "";
   var Priimek = "";
   var Datum = "";
   var Teza = "";
   var Visina = "";
-  var Simptom = "";
+  var Datumi = "";
 
   switch(stPacienta){
       case 1:{
@@ -47,32 +49,32 @@ function generirajPodatke(stPacienta) {
         Ime = "Tone";
         Priimek = "Novak";
         Datum = "1952-10-3T06:31";
-        Teza = "80";
-        Visina = "182";
-        Simptom = "prehlad"
+        Teza = ["70","70","70","72","72"];
+        Visina = ["160","165","170","172","180"];
+        Datumi = ["2010-05-10","2011-05-10","2012-05-10","2013-05-10","2014-05-10" ];
       }break;
       case 2:{
         ehrId = getSessionId(); //"1234A-4321B-1324C";
         Ime = "Maja";
         Priimek = "Madaj";
         Datum = "1977-11-23T19:11";
-        Teza = "65";
-        Visina = "172";
-        Simptom = "pretres možganov";
+        Teza = ["50","52","54","53","56"];
+        Visina = ["150","153","155","158","160"];
+        Datumi = ["2010-05-10","2011-05-10","2012-05-10","2013-05-10","2014-05-10" ];
       }break;
       case 3:{
         ehrId = getSessionId();//"4312A-2324B-4311C";
         Ime = "Donald";
         Priimek = "Trump";
         Datum = "1955-9-11T09:11";
-        Teza = "85";
-        Visina = "185";
-        Simptom = "zlom roke";
+        Teza = ["70","74","76","80","85"];
+        Visina = ["160","165","170","172","176"];
+        Datumi = ["2010-05-10","2011-05-10","2012-05-10","2013-05-10","2014-05-10" ];
       }break;
   }
-  generirajPacienta(ehrId,Ime,Priimek,Datum,Teza,Visina,Simptom);
+  generirajPacienta(ehrId,Ime,Priimek,Datum,Teza,Visina,Datumi);
 }
-function generirajPacienta(ehrId,Ime,Priimek,Datum,Teza,Visina,Simptom){
+function generirajPacienta(ehrId,Ime,Priimek,Datum,Teza,Visina,Datumi){
     sessionId = getSessionId();
     console.log(sessionId);
 		$.ajaxSetup({
@@ -89,7 +91,6 @@ function generirajPacienta(ehrId,Ime,Priimek,Datum,Teza,Visina,Simptom){
 		            lastNames: Priimek,
 		            dateOfBirth: Datum,
 		            partyAdditionalInfo: [{key: "ehrId", value: ehrId},
-		            {key: "simptom", value: Simptom}
 		            ]
 		        };
 		        $.ajax({
@@ -107,7 +108,10 @@ function generirajPacienta(ehrId,Ime,Priimek,Datum,Teza,Visina,Simptom){
 		            }
 		            
 		        });
-		        dodajMeritvePacienta();
+		        for(var i = 0;i<5;i++){
+		        	dodajMeritvePacienta(ehrId,Datumi[i],Teza[i],Visina[i]);
+		        }
+		        console.log("test123");
 		        var menu="<option value="+ehrId+">"+Ime+" "+Priimek+"</option>";
 				$("#preberiObstojeciEHR").append(menu);
 				$("#preberiEhrIdZaVitalneZnake").append(menu);
@@ -115,35 +119,35 @@ function generirajPacienta(ehrId,Ime,Priimek,Datum,Teza,Visina,Simptom){
 		});
 	
 }
-function dodajMeritvePacienta(ehrId, Teza, Visina){
-    sessionId = getSessionId();
-    $.ajaxSetup({
+
+var dodajMeritvePacienta = function(ehrId,Datumi,Teza,Visina){
+	sessionId = getSessionId();
+		$.ajaxSetup({
 		    headers: {"Ehr-Session": sessionId}
 		});
-		var podatki = {
-			// Struktura predloge je na voljo na naslednjem spletnem naslovu:
-      // https://rest.ehrscape.com/rest/v1/template/Vital%20Signs/example
-		    "ctx/language": "en",
-		    "ctx/territory": "SI",
-		    "vital_signs/height_length/any_event/body_height_length": Visina,
-		    "vital_signs/body_weight/any_event/body_weight": Teza
-		};
-		var parametriZahteve = {
-		    ehrId: ehrId,
-		    templateId: 'Vital Signs',
-		    format: 'FLAT',
-		};
-		$.ajax({
-		    url: baseUrl + "/composition?" + $.param(parametriZahteve),
-		    type: 'POST',
-		    contentType: 'application/json',
-		    data: JSON.stringify(podatki),
-		    success: function (res) {
-		    },
-		    error: function(err) {
-		    }
-		});
+			var podatki = {
+			    "ctx/language": "en",
+			    "ctx/territory": "SI",
+			    "ctx/time": Datumi,
+			    "vital_signs/height_length/any_event/body_height_length": Visina,
+			    "vital_signs/body_weight/any_event/body_weight": Teza,
+			};
+			var parametriZahteve = {
+			    ehrId: ehrId,
+			    templateId: 'Vital Signs',
+			    format: 'FLAT',
+			};
+	
+			$.ajax({
+			    url: baseUrl + "/composition?" + $.param(parametriZahteve),
+			    type: 'POST',
+			    contentType: 'application/json',
+			    data: JSON.stringify(podatki),
+			    success: function (res) {},
+			    error: function(err) {}
+			});
 }
+
 function kreirajEHRzaBolnika() {
 	sessionId = getSessionId();
 
@@ -242,11 +246,7 @@ function dodajMeritveVitalnihZnakov() {
 	var datumInUra = $("#dodajVitalnoDatumInUra").val();
 	var telesnaVisina = $("#dodajVitalnoTelesnaVisina").val();
 	var telesnaTeza = $("#dodajVitalnoTelesnaTeza").val();
-	var telesnaTemperatura = $("#dodajVitalnoTelesnaTemperatura").val();
-	var sistolicniKrvniTlak = $("#dodajVitalnoKrvniTlakSistolicni").val();
-	var diastolicniKrvniTlak = $("#dodajVitalnoKrvniTlakDiastolicni").val();
-	var nasicenostKrviSKisikom = $("#dodajVitalnoNasicenostKrviSKisikom").val();
-	var merilec = $("#dodajVitalnoMerilec").val();
+	
 
 	if (!ehrId || ehrId.trim().length == 0) {
 		$("#dodajMeritveVitalnihZnakovSporocilo").html("<span class='obvestilo " +
@@ -262,18 +262,13 @@ function dodajMeritveVitalnihZnakov() {
 		    "ctx/territory": "SI",
 		    "ctx/time": datumInUra,
 		    "vital_signs/height_length/any_event/body_height_length": telesnaVisina,
-		    "vital_signs/body_weight/any_event/body_weight": telesnaTeza,
-		   	"vital_signs/body_temperature/any_event/temperature|magnitude": telesnaTemperatura,
-		    "vital_signs/body_temperature/any_event/temperature|unit": "°C",
-		    "vital_signs/blood_pressure/any_event/systolic": sistolicniKrvniTlak,
-		    "vital_signs/blood_pressure/any_event/diastolic": diastolicniKrvniTlak,
-		    "vital_signs/indirect_oximetry:0/spo2|numerator": nasicenostKrviSKisikom
+		    "vital_signs/body_weight/any_event/body_weight": telesnaTeza
 		};
 		var parametriZahteve = {
 		    ehrId: ehrId,
 		    templateId: 'Vital Signs',
 		    format: 'FLAT',
-		    committer: merilec
+		    
 		};
 		$.ajax({
 		    url: baseUrl + "/composition?" + $.param(parametriZahteve),
@@ -320,19 +315,19 @@ function preberiMeritveVitalnihZnakov() {
 				$("#rezultatMeritveVitalnihZnakov").html("<br/><span>Pridobivanje " +
           "podatkov za <b>'" + tip + "'</b> bolnika <b>'" + party.firstNames +
           " " + party.lastNames + "'</b>.</span><br/><br/>");
-				if (tip == "telesna temperatura") {
+				if (tip == "visina") {
 					$.ajax({
-  					    url: baseUrl + "/view/" + ehrId + "/" + "body_temperature",
+  					    url: baseUrl + "/view/" + ehrId + "/" + "height",
 					    type: 'GET',
 					    headers: {"Ehr-Session": sessionId},
 					    success: function (res) {
 					    	if (res.length > 0) {
 						    	var results = "<table class='table table-striped " +
                     "table-hover'><tr><th>Datum in ura</th>" +
-                    "<th class='text-right'>Telesna temperatura</th></tr>";
+                    "<th class='text-right'>Telesna višina</th></tr>";
 						        for (var i in res) {
 						            results += "<tr><td>" + res[i].time +
-                          "</td><td class='text-right'>" + res[i].temperature +
+                          "</td><td class='text-right'>" + res[i].height +
                           " " + res[i].unit + "</td>";
 						        }
 						        results += "</table>";
@@ -470,11 +465,6 @@ $(document).ready(function() {
 		$("#dodajVitalnoDatumInUra").val(podatki[1]);
 		$("#dodajVitalnoTelesnaVisina").val(podatki[2]);
 		$("#dodajVitalnoTelesnaTeza").val(podatki[3]);
-		$("#dodajVitalnoTelesnaTemperatura").val(podatki[4]);
-		$("#dodajVitalnoKrvniTlakSistolicni").val(podatki[5]);
-		$("#dodajVitalnoKrvniTlakDiastolicni").val(podatki[6]);
-		$("#dodajVitalnoNasicenostKrviSKisikom").val(podatki[7]);
-		$("#dodajVitalnoMerilec").val(podatki[8]);
 	});
 
   /**
@@ -491,3 +481,146 @@ $(document).ready(function() {
 });
 
 // TODO: Tukaj implementirate funkcionalnost, ki jo podpira vaša aplikacija
+
+
+      // Note: This example requires that you consent to location sharing when
+      // prompted by your browser. If you see the error "The Geolocation service
+      // failed.", it means you probably did not give permission for the browser to
+      // locate you.
+
+      // This example requires the Places library. Include the libraries=places
+      // parameter when you first load the API. For example:
+      // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
+
+      var map;
+      var infowindow;
+      
+
+      function initMap() {
+        var map = new google.maps.Map(document.getElementById('map'), {
+    center: {lat: -34.397, lng: 150.644},
+    zoom: 14
+  });
+  var infoWindow = new google.maps.InfoWindow({map: map});
+
+  // Try HTML5 geolocation.
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(function(position) {
+      var pos = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+
+      infoWindow.setPosition(pos);
+      infoWindow.setContent('Vaša lokacija.');
+      map.setCenter(pos);
+      var service = new google.maps.places.PlacesService(map);
+      console.log(pos);
+      
+        service.nearbySearch({
+          location: pos,
+          radius: 5500,
+          type: ['hospital']
+        }, callback);
+        function callback(results, status) {
+        if (status === google.maps.places.PlacesServiceStatus.OK) {
+          for (var i = 0; i < results.length; i++) {
+            createMarker(results[i]);
+            steviloBolnisnic++;
+
+          }
+        }
+      }
+
+      function createMarker(place) {
+      	
+        var placeLoc = place.geometry.location;
+        var marker = new google.maps.Marker({
+          map: map,
+          position: place.geometry.location
+        });
+
+        google.maps.event.addListener(marker, 'click', function() {
+          infowindow.setContent(place.name);
+          infowindow.open(map, this);
+        });
+      }	
+    }, function() {
+      handleLocationError(true, infoWindow, map.getCenter());
+    });
+  } else {
+    // Browser doesn't support Geolocation
+    handleLocationError(false, infoWindow, map.getCenter());
+  }
+        
+      }
+
+      
+  function handleLocationError(browserHasGeolocation, infoWindow, pos) {
+  infoWindow.setPosition(pos);
+  infoWindow.setContent(browserHasGeolocation ?
+                        'Error: The Geolocation service failed.' :
+                        'Error: Your browser doesn\'t support geolocation.');
+}
+function ustvariGraf(){
+	var margin = {top: 30, right: 20, bottom: 30, left: 50},
+    width = 600 - margin.left - margin.right,
+    height = 270 - margin.top - margin.bottom;
+
+// Parse the date / time
+var parseDate = d3.time.format("%d-%b-%y").parse;
+
+// Set the ranges
+var x = d3.time.scale().range([0, width]);
+var y = d3.scale.linear().range([height, 0]);
+
+// Define the axes
+var xAxis = d3.svg.axis().scale(x)
+    .orient("bottom").ticks(5);
+
+var yAxis = d3.svg.axis().scale(y)
+    .orient("left").ticks(5);
+
+// Define the line
+var valueline = d3.svg.line()
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.close); });
+    
+// Adds the svg canvas
+var svg = d3.select("body")
+    .append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+    .append("g")
+        .attr("transform", 
+              "translate(" + margin.left + "," + margin.top + ")");
+
+// Get the data
+d3.csv("data.csv", function(error, data) {
+    data.forEach(function(d) {
+        d.date = parseDate(d.date);
+        d.close = +d.close;
+    });
+
+    // Scale the range of the data
+    x.domain(d3.extent(data, function(d) { return d.date; }));
+    y.domain([0, d3.max(data, function(d) { return d.close; })]);
+
+    // Add the valueline path.
+    svg.append("path")
+        .attr("class", "line")
+        .attr("d", valueline(data));
+
+    // Add the X Axis
+    svg.append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + height + ")")
+        .call(xAxis);
+
+    // Add the Y Axis
+    svg.append("g")
+        .attr("class", "y axis")
+        .call(yAxis);
+
+});
+}

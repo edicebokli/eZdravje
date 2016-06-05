@@ -3,6 +3,21 @@
 <head>
   <meta charset="utf-8">
   <title>eZdravje :: 4. DN :: OIS 2015/2016</title>
+  <meta name="viewport" content="initial-scale=1.0">
+  <script src="http://maps.google.com/maps/api/js?sensor=true"></script>
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABEJByBuKodrk_qp8i7eheuiLGfi0NO_A&libraries=places"></script>	
+    <style>
+      html, body {
+        height: 100%;
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        height: 100%;
+      }
+    </style>
+    
+
   <link href="knjiznice/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body {padding-top: 70px;}
@@ -10,6 +25,7 @@
   <script src="knjiznice/js/jquery-2.2.3.min.js"></script>
   <script src="knjiznice/js/bootstrap.min.js"></script>
   <script src="knjiznice/js/koda.js"></script>
+  
 </head>
 <body>
 
@@ -22,7 +38,7 @@
           <span class="icon-bar"></span><span class="icon-bar"></span><span class="icon-bar"></span>
         </button>
         <!-- ZAČETEK: Ime vaše aplikacije -->
-        <a class="navbar-brand" href="index.html">eRešilec</a>
+        <a class="navbar-brand" href="index.html">eSvetovalec</a>
         <!-- KONEC: Ime vaše aplikacije -->
       </div>
       <div class="collapse navbar-collapse" id="menujska-vrstica">
@@ -37,8 +53,8 @@
   <!-- KONEC: Menujska vrstica na vrhu spletne strani -->
 
   <!-- ZAČETEK: Vsebina aplikacije -->
-  <div class="page-header"><h2>EHR podatki</h2></div>
-		<div class="row">
+  <div class="container"><h2>EHR podatki</h2></div>
+		<div class="container">
 			<div class="col-lg-6 col-md-6 col-sm-6">
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -70,7 +86,7 @@
 				</div>
 			</div>
 		</div>
-		<div class="row">
+		<div class="container">
 			<div class="col-lg-6 col-md-6 col-sm-6">
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -84,6 +100,7 @@
 						<span class="label label-default">Datum in ura</span><input id="dodajVitalnoDatumInUra" type="text" class="form-control input-mini" placeholder="2014-11-21T11:40Z">
 						<span class="label label-default">Telesna višina</span><div class="input-group"><input id="dodajVitalnoTelesnaVisina" type="text" class="form-control input-mini" placeholder="185"><span class="input-group-addon">cm</span></div>
 						<span class="label label-default">Telesna teža</span><div class="input-group"><input id="dodajVitalnoTelesnaTeza" type="text" class="form-control input-mini" placeholder="80.00"><span class="input-group-addon">kg</span></div>
+						
 						<button type="button" class="btn btn-primary btn-xs" onclick="dodajMeritveVitalnihZnakov()">Dodaj meritve vitalnih znakov</button><span id="dodajMeritveVitalnihZnakovSporocilo"></span>
 				  	</div>
 				</div>
@@ -92,19 +109,21 @@
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<div class="row">
-							<div class="col-lg-6 col-md-6 col-sm-6"><b>Poišči</b> bližnje zdravstvene ustanove</div>
-							
+							<div class="col-lg-6 col-md-6 col-sm-6"><b>Preberi</b> meritve vitalnih znakov</div>
+							<div class="col-lg-3 col-md-3 col-sm-3"><select class="form-control input-sm" id="preberiTipZaVitalneZnake"><option value="visina">višina</option><option value="telesna teža">telesna teža</option></select></div>
 							<div class="col-lg-3 col-md-3 col-sm-3"><select class="form-control input-sm" id="preberiEhrIdZaVitalneZnake"><option value=""></option></select></div>
 						</div>
 					</div>
 					<div class="panel-body">
 						<span class="label label-default">EHR ID</span><input id="meritveVitalnihZnakovEHRid" type="text" class="form-control input-mini" placeholder="7b661e12-3a98-21ad-c29e-2dc9f5a3d885">
-						<button type="button" class="btn btn-primary btn-xs" onclick="preberiMeritveVitalnihZnakov()">Preberi meritve vitalnih znakov</button><span id="preberiMeritveVitalnihZnakovSporocilo"></span>
+						<button type="button" class="btn btn-primary btn-xs" onclick="preberiMeritveVitalnihZnakov(), ustvariGraf()">Preberi meritve vitalnih znakov in ustvari graf.</button><span id="preberiMeritveVitalnihZnakovSporocilo"></span>
 						<div id="rezultatMeritveVitalnihZnakov"></div>
 				  	</div>
 				</div>
 			</div>
 		</div>
+    <div id="map"></div>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyABEJByBuKodrk_qp8i7eheuiLGfi0NO_A&libraries=places&callback=initMap" async defer></script>
   <!-- KONEC: Vsebina aplikacije -->
 
 </body>
